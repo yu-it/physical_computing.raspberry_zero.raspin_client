@@ -1,14 +1,26 @@
-import raspin.raspin
-import cam_driver_movement_impl as driver
+import raspin
+import time
+from multiprocessing import Process
+import subprocess
 import os
 
-api = raspin.raspin.api("localhost", 3000)
+api = raspin.api("localhost", 3000)
 
-available_mess_dir = {"message_name": "Move", "arg": "dir_"}
-available_mess_stop = {"message_name": "Stop", "arg": "0"}
-available_mess_kill = {"message_name": "Kill", "arg": "0"}
+def launch_process():
+    global p
+    cmd = ["./mjpg_streamer"
+        , "-i"
+        , './input_raspicam.so -fps 10 -x 320 -y 240'
+        , "-o"
+        , './output_http.so -w ./www -p 8080']
 
-pvid = api.register_controller_provider("Cam Driver", 3000, [available_mess_dir, available_mess_stop, available_mess_kill])["pvid"]
+    p = subprocess.Popen(cmd, cwd="/home/pi/bin/programs/camera_inst/mjpg-streamer/mjpg-streamer-experimental")
+    # proc.communicate()
+    time.sleep(3)
+    print("@kidou kanryou")
+
+launch_process()
+
 while True:
     mess = api.subscribe_control_message(pvid,120)
     if mess["ret"] == "to":
