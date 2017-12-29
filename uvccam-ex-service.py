@@ -39,7 +39,7 @@ def stop_process():
     p = None
 
 
-def launch_process(data_pvid):
+def c(data_pvid):
     global p
     cmd = ["./mjpg_streamer"
         , "-i"
