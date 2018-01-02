@@ -25,6 +25,8 @@ t_speed = None
 
 def receiver_off_on(data):
     print "speed:" + str(data)
+#
+"""
     global t_wheel_move
     global t_sholder_move
     global t_elbow_move
@@ -50,6 +52,7 @@ def receiver_off_on(data):
         api.delete_if(api.If_Arrows, sholder_move, process_name)
         api.delete_if(api.If_Arrows, elbow_move, process_name)
         api.delete_if(api.If_Toggles, wheel_speed, process_name)
+"""
 
 
 def receiver_wheel(data):
@@ -84,6 +87,17 @@ def shutdown_hook():
 
 
 t = api.start_signal_observing(api.If_Toggles, off_on, receiver_off_on)
+
+api.put_arrow_if(wheel_move, "Wheel", "trbl", process_name)
+api.put_arrow_if(sholder_move, "Sholder", "trbl", process_name)
+api.put_arrow_if(elbow_move, "Elbow", "tb", process_name)
+api.put_toggle_if(wheel_speed, [" fast ", "middle", " slow "], "Wheel Speed", "physical_controller")
+
+t_wheel_move = api.start_signal_observing(api.If_Arrows, wheel_move, receiver_wheel)
+t_sholder_move = api.start_signal_observing(api.If_Arrows, sholder_move, receiver_sholder)
+t_elbow_move = api.start_signal_observing(api.If_Arrows, elbow_move, receiver_elbow)
+t_speed = api.start_signal_observing(api.If_Toggles, wheel_speed, receiver_speed)
+
 atexit.register(shutdown_hook)
 
 
