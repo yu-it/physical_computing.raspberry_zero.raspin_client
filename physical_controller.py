@@ -28,8 +28,11 @@ def setup_ly10(num):
     speed = [0x30, 0x00]
     set(num, min, max, speed)
 def set(num, min,max,speed):
-    i2c(command_of_set_min, min, speed)
-    i2c(command_of_set_max, max, speed)
+    i2c(command_of_set_min[num], min)
+    i2c(command_of_set_max[num], max)
+    i2c(command_of_set_speed[num], speed)
+
+
 i2c([0x12,0x0b],[0xdd, 0x00])
 setup_ds939(sholder_lr)
 setup_ly10(sholder_ud)
