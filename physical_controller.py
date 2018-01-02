@@ -5,7 +5,36 @@ import time
 import psutil
 import raspin.physical_util as physical_util
 
-physical_util.i2c_write(0x12,[0x0b, 0xdd, 0x00])
+
+def i2c(address_command,data):
+    physical_util.i2c_write(address_command[0], [address_command[1],data[0], data[1]])
+
+command_of_set_min = [[0x12, 0x01], [0x12, 0x03],[0x13, 0x01], [0x13, 0x02], [0x13, 0x03], [0x13, 0x04]]
+command_of_set_max = [[0x12, 0x02], [0x12, 0x04],[0x13, 0x05], [0x13, 0x06], [0x13, 0x07], [0x13, 0x08]]
+command_of_set_direction = [[0x12, 0x05], [0x12, 0x06],[0x13, 0x09], [0x13, 0x0a], [0x13, 0x0b], [0x13, 0x0c]]
+command_of_set_speed = [[0x12, 0x07], [0x12, 0x08],[0x13, 0x0d], [0x13, 0x0e], [0x13, 0x0f], [0x13, 0x10]]
+
+sholder_ud = 2
+sholder_lr = 1
+elbow = 6
+def setup_ds939(num):
+    min = [0x80, 0x01]
+    max = [0xe8, 0x03]
+    speed = [0x30, 0x00]
+    set(num, min, max, speed)
+def setup_ly10(num):
+    min = [0x10, 0x01]
+    max = [0xbb, 0x03]
+    speed = [0x30, 0x00]
+    set(num, min, max, speed)
+def set(num, min,max,speed):
+    i2c(command_of_set_min, min, speed)
+    i2c(command_of_set_max, max, speed)
+i2c([0x12,0x0b],[0xdd, 0x00])
+setup_ds939(sholder_lr)
+setup_ly10(sholder_ud)
+setup_ly10(elbow)
+
 
 process_name = "physical_controller"
 wheel_move = "wheel"
@@ -78,8 +107,26 @@ def receiver_wheel(data):
 
 def receiver_sholder(data):
     print "sholder:" + str(data)
+    if data == "t":
+        i2c(command_of_set_direction[sholder_ud], [1,0])
+    elif data == "b":
+        i2c(command_of_set_direction[sholder_ud], [3,0])
+    elif data == "l":
+        i2c(command_of_set_direction[sholder_lr], [1,0])
+    elif data == "r":
+        i2c(command_of_set_direction[sholder_lr], [3,0])
+    else:
+        i2c(command_of_set_direction[sholder_ud], [2,0])
+        i2c(command_of_set_direction[sholder_lr], [2,0])
+
+
 def receiver_elbow(data):
-    print "elbow:" + str(data)
+    if data == "t":
+        i2c(command_of_set_direction[elbow], [1,0])
+    elif data == "b":
+        i2c(command_of_set_direction[elbow], [3,0])
+    else:
+        i2c(command_of_set_direction[elbow], [2,0])
 def receiver_speed(data):
     print "speed:" + str(data)
 def shutdown_hook():
