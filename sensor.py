@@ -21,5 +21,5 @@ atexit.register(shutdown_hook)
 
 while True:
     time.sleep(2)
-    api.put_data(api.If_Numbers, "Source_Voltage",physical_util.read_analog_volt(7,0.25))
+    api.put_data(api.If_Numbers, "Source_Voltage",physical_util.read_analog_volt(7,13.618/3.3))
 
