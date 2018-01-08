@@ -169,7 +169,7 @@ def receiver_arm_speed(data):
 def receiver_wheel_speed(data):
     print "wheel_speed:" + str(data)
     if data == " fast ":
-        i2c([0x12, 0x0b], [0xee, 0x00])
+        i2c([0x12, 0x0b], [0xff, 0x00])
     elif data == "middle":
         i2c([0x12, 0x0b], [0xdd, 0x00])
     elif data == " slow ":
