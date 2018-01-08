@@ -48,10 +48,10 @@ sholder_elbow_move = "sholder_elbow"
 elbow_move = "elbow"
 arm_speed = "arm_speed"
 wheel_speed = "wheel_speed"
-off_on = "off_on"
+#off_on = "off_on"
 
 api.put_process(process_name, "Physical Controller")
-api.put_toggle_if(off_on,["off","on"], "Power", "physical_controller")
+#api.put_toggle_if(off_on,["off","on"], "Power", "physical_controller")
 
 t_wheel_move = None
 t_sholder_move = None
@@ -180,7 +180,7 @@ def shutdown_hook():
     api.delete_process(process_name)
 
 
-t = api.start_signal_observing(api.If_Toggles, off_on, receiver_off_on)
+#t = api.start_signal_observing(api.If_Toggles, off_on, receiver_off_on)
 
 api.put_arrow_if(wheel_move, "Wheel", "trbl", process_name)
 api.put_arrow_if(sholder_move, "Sholder", "trbl", process_name)
@@ -188,7 +188,7 @@ api.put_arrow_if(elbow_move, "Elbow", "tb", process_name)
 api.put_arrow_if(sholder_elbow_move, "Sholder And Elbow", "tb", process_name)
 
 api.put_toggle_if(arm_speed, [" fast ", "middle", " slow "], "Arm Speed", "physical_controller")
-api.put_toggle_if(wheel_speed, [" fast ", "middle", " slow "], "Wheel Speed", "physical_controller")
+t = api.put_toggle_if(wheel_speed, [" fast ", "middle", " slow "], "Wheel Speed", "physical_controller")
 
 t_wheel_move = api.start_signal_observing(api.If_Arrows, wheel_move, receiver_wheel)
 t_sholder_move = api.start_signal_observing(api.If_Arrows, sholder_move, receiver_sholder)
