@@ -16,7 +16,8 @@ command_of_set_speed = [[0x12, 0x07], [0x12, 0x08],[0x13, 0x0d], [0x13, 0x0e], [
 command_of_set_angle = [[0x12, 0x0d], [0x12, 0x0e],[0x13, 0x11], [0x13, 0x12], [0x13, 0x13], [0x13, 0x14]]
 
 sholder_ud =0 
-sholder_lr =2 
+leg =1
+sholder_lr =2
 elbow = 4
 def setup_ds939(num, speed=[0x10, 0x00]):
     min = [0x80, 0x01]
@@ -34,18 +35,21 @@ def set(num, min,max,speed):
 
 i2c([0x12,0x0b],[0xdd, 0x00])
 setup_ds939(sholder_lr)
-setup_ly10(sholder_ud)
-setup_ly10(elbow)
+setup_ds939(sholder_ud)
+setup_ds939(elbow)
+setup_ly10(leg)
 
 i2c(command_of_set_angle[sholder_lr], [0x80, 0x02])
 i2c(command_of_set_angle[sholder_ud], [0x80, 0x02])
 i2c(command_of_set_angle[elbow], [0x80, 0x02])
+i2c(command_of_set_angle[leg], [0x80, 0x02])
 
 process_name = "physical_controller"
 wheel_move = "wheel"
 sholder_move = "sholder"
 sholder_elbow_move = "sholder_elbow"
 elbow_move = "elbow"
+leg_move = "leg"
 arm_speed = "arm_speed"
 wheel_speed = "wheel_speed"
 #off_on = "off_on"
@@ -57,6 +61,7 @@ t_wheel_move = None
 t_sholder_move = None
 t_sholder_elbow_move = None
 t_elbow_move = None
+t_leg_move = None
 t_arm_speed = None
 t_wheel_speed = None
 
@@ -68,27 +73,32 @@ def receiver_off_on(data):
     global t_wheel_move
     global t_sholder_move
     global t_elbow_move
+    global t_leg_move
     global t_speed
     if data == "on":
         api.put_arrow_if(wheel_move, "Wheel", "trbl", process_name)
         api.put_arrow_if(sholder_move, "Sholder", "trbl", process_name)
         api.put_arrow_if(elbow_move, "Elbow","tb",process_name)
+        api.put_arrow_if(leg_move, "Leg","tb",process_name)
         api.put_toggle_if(wheel_speed,[" fast ","middle"," slow "], "Wheel Speed", "physical_controller")
 
         t_wheel_move = api.start_signal_observing(api.If_Arrows, wheel_move, receiver_wheel)
         t_sholder_move = api.start_signal_observing(api.If_Arrows, sholder_move, receiver_sholder)
         t_elbow_move = api.start_signal_observing(api.If_Arrows, elbow_move, receiver_elbow)
+        t_elbow_move = api.start_signal_observing(api.If_Arrows, leg_move, receiver_leg)
         t_speed = api.start_signal_observing(api.If_Toggles, wheel_speed, receiver_speed)
 
     if data == "off":
         api.end_signal_observing(t_wheel_move)
         api.end_signal_observing(t_sholder_move)
         api.end_signal_observing(t_elbow_move)
+        api.end_signal_observing(t_leg_move)
         api.end_signal_observing(t_speed)
         api.delete_if(api.If_Arrows, wheel_move, process_name)
         api.delete_if(api.If_Arrows, wheel_move, process_name)
         api.delete_if(api.If_Arrows, sholder_move, process_name)
         api.delete_if(api.If_Arrows, elbow_move, process_name)
+        api.delete_if(api.If_Arrows, leg_move, process_name)
         api.delete_if(api.If_Toggles, wheel_speed, process_name)
 """
 
@@ -136,6 +146,14 @@ def receiver_elbow(data):
         i2c(command_of_set_direction[elbow], [1,0])
     else:
         i2c(command_of_set_direction[elbow], [2,0])
+
+def receiver_leg(data):
+    if data == "t":
+        i2c(command_of_set_direction[leg], [3,0])
+    elif data == "b":
+        i2c(command_of_set_direction[leg], [1,0])
+    else:
+        i2c(command_of_set_direction[leg], [2,0])
 
 
 def receiver_sholder_elbow(data):
@@ -185,6 +203,7 @@ def shutdown_hook():
 api.put_arrow_if(wheel_move, "Wheel", "trbl", process_name)
 api.put_arrow_if(sholder_move, "Sholder", "trbl", process_name)
 api.put_arrow_if(elbow_move, "Elbow", "tb", process_name)
+api.put_arrow_if(leg_move, "Leg", "tb", process_name)
 api.put_arrow_if(sholder_elbow_move, "Sholder And Elbow", "tb", process_name)
 
 api.put_toggle_if(arm_speed, [" fast ", "middle", " slow "], "Arm Speed", "physical_controller")
@@ -193,6 +212,7 @@ t = api.put_toggle_if(wheel_speed, [" fast ", "middle", " slow "], "Wheel Speed"
 t_wheel_move = api.start_signal_observing(api.If_Arrows, wheel_move, receiver_wheel)
 t_sholder_move = api.start_signal_observing(api.If_Arrows, sholder_move, receiver_sholder)
 t_elbow_move = api.start_signal_observing(api.If_Arrows, elbow_move, receiver_elbow)
+t_leg_move = api.start_signal_observing(api.If_Arrows, leg_move, receiver_leg)
 t_arm_speed = api.start_signal_observing(api.If_Toggles, arm_speed, receiver_arm_speed)
 t_wheel_speed = api.start_signal_observing(api.If_Toggles, wheel_speed, receiver_wheel_speed)
 t_sholder_elbow_move = api.start_signal_observing(api.If_Arrows, sholder_elbow_move, receiver_sholder_elbow)
