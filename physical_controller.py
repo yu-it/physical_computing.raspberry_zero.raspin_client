@@ -207,7 +207,7 @@ api.put_arrow_if(leg_move, "Leg", "tb", process_name)
 api.put_arrow_if(sholder_elbow_move, "Sholder And Elbow", "tb", process_name)
 
 api.put_toggle_if(arm_speed, [" fast ", "middle", " slow "], "Arm Speed", "physical_controller")
-t = api.put_toggle_if(wheel_speed, [" fast ", "middle", " slow "], "Wheel Speed", "physical_controller")
+api.put_toggle_if(wheel_speed, [" fast ", "middle", " slow "], "Wheel Speed", "physical_controller")
 
 t_wheel_move = api.start_signal_observing(api.If_Arrows, wheel_move, receiver_wheel)
 t_sholder_move = api.start_signal_observing(api.If_Arrows, sholder_move, receiver_sholder)
@@ -220,4 +220,4 @@ t_sholder_elbow_move = api.start_signal_observing(api.If_Arrows, sholder_elbow_m
 atexit.register(shutdown_hook)
 
 
-t.join()
+t_wheel_move.join()
